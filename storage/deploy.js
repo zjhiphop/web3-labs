@@ -2,19 +2,28 @@ const ethers = require('ethers');
 const { copyFileSync } = require('fs');
 const fs = require('fs-extra');
 
-async function main() {
-    const provider = new ethers.providers.JsonRpcProvider("http://0.0.0.0:7545")
-    console.log("Start...")
+require('dotenv').config()
 
-    const wallet = new ethers.Wallet("f486e6ba8152c4b1cdeb0ab031456668bd1cb581aa915721a577d8f7ea23c31d", provider)
+console.log(process.env.RPC_URL, process.env.PRIVATE_KEY_PASSWORD, process.env.PRIVATE_KEY)
+
+async function main() {
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
+    console.log("Start...")
+    const encryptedKeyJson = fs.readFileSync(__dirname + '/../.encryptedKey.json')
+
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
+    // Or use the encryptedKeyJson to connect wallet
+    // let wallet = new ethers.Wallet.fromEncryptedJsonSync(encryptedKeyJson, process.env.PRIVATE_KEY_PASSWORD)
+    // wallet = await wallet.connect(provider)
 
     console.log("Connected to wallet")
 
-    const abi = fs.readFileSync('./storage_SimpleStorage_sol_Storage.abi', 'utf8')
-    const binary = fs.readFileSync('./storage_SimpleStorage_sol_Storage.bin', 'utf8')
-
-    console.log("read abi and binary")
     try {
+
+        const abi = fs.readFileSync('./storage_SimpleStorage_sol_Storage.abi', 'utf8')
+        const binary = fs.readFileSync('./storage_SimpleStorage_sol_Storage.bin', 'utf8')
+
+        console.log("read abi and binary")
 
         const contractFactory = new ethers.ContractFactory(abi, binary, wallet)
 
@@ -58,7 +67,7 @@ async function main() {
 
 main().then(data => {
     console.log(data)
-    // process.exit(0)
+    process.exit(0)
 })
     .catch(e => {
         process.exit(1)
