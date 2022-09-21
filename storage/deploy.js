@@ -46,6 +46,11 @@ async function main() {
         const currentNumber = await contract.retrieve()
         console.log("Current number:", currentNumber)
 
+        const transactionRes = await contract.store("7")
+        const transactionReceipt = await transactionRes.wait(1)
+        const updateNumber = await contract.retrieve()
+        console.log(`Updated number: ${updateNumber}`)
+
     } catch (e) {
         console.log('error: ', e)
     }
