@@ -6,7 +6,11 @@
   "scripts": {
     "deploy": "hardhat run scripts/deployStorage.js --network goerli",
     "node": "hardhat node",
-    "deploy:local": "hardhat run scripts/deployStorage.js --network localhost"
+    "deploy:local": "hardhat run scripts/deployStorage.js --network localhost",
+    "console": "hardhat console --network localhost",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "test": "hardhat test"
   },
   "keywords": [],
   "author": "",
@@ -25,10 +29,10 @@
     "chai": "^4.2.0",
     "ethers": "^5.4.7",
     "hardhat": "^2.11.2",
-    "hardhat-gas-reporter": "^1.0.8",
+    "hardhat-gas-reporter": "^1.0.9",
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "1.0.0-beta.24",
-    "solidity-coverage": "^0.8.0",
+    "solidity-coverage": "^0.8.2",
     "typechain": "^8.1.0"
   }
 }
