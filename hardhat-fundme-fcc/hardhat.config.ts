@@ -13,7 +13,17 @@ const coinmarketcapKey = process.env.COIN_MARKET_API_KEY || 0x00;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
-    solidity: "0.8.17",
+    // solidity: "0.8.17",
+    solidity: {
+        compilers: [
+            {
+                version: "0.8.17"
+            },
+            {
+                version: "0.6.6"
+            }
+        ]
+    },
     defaultNetwork: "hardhat",
     networks: {
         goerli: {
