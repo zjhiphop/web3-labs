@@ -1,9 +1,4 @@
 node_modules
-*.bin
-*.abi
-.env
-.encryptedKey.json
-node_modules
 .env
 coverage
 coverage.json
