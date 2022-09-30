@@ -31,11 +31,12 @@ async function deployFunc({ getNamedAccounts, deployments }) {
         withConfirmations: network.config.blockConfirmations || 1
     });
 
-    if (!devChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-        await verifyContract(fundMe.address, args);
-    }
+    // if (!devChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+    //     await verifyContract(fundMe.address, args);
+    // }
 
     log("Deployed!!");
 }
 
 export default deployFunc;
+export const tags = ["all", "fundMe"];
