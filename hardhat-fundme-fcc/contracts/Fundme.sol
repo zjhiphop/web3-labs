@@ -2,6 +2,7 @@
 //  withdraw funds
 
 // SPDX-License-Identifier: MIT
+// Pragma
 pragma solidity >=0.7.0 <0.9.0;
 
 // Notes: manunally declare interface
@@ -40,9 +41,16 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 
 // custme error to save gas 
-error NotOwner();
-
+error Fundme__NotOwner();
+/**
+ * @title A contract for crowd funding
+ * @author Jade
+ * @notice this contract is used to demo fund 
+ * @dev This implements price feed as a library
+ */
 contract FundMe {
+    // Type Descriptions
+
     // 1e18 = 10 * 1000000000000000000
     // use Constant and Immutable to gas efficient
     uint256 public constant MINIMAL_USD = 50 * 1e18; // use BlockChain Oracle Network to query the USD value to eth
@@ -61,6 +69,10 @@ contract FundMe {
         priceFeed = AggregatorV3Interface(priceFeedAddres);
     }
 
+    /**
+     * @notice this functions fund this contract
+     * @dev This implements fund
+     */
     function fund() public payable{
         // 1. how to send eth?
         // require(getConversionRate(msg.value) >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
@@ -96,7 +108,7 @@ contract FundMe {
 
     modifier onlyOwner {
         // require(msg.sender == owner, "Sender is not owner");
-        if(msg.sender != owner) { revert NotOwner();}
+        if(msg.sender != owner) { revert Fundme__NotOwner();}
         _; // do the rest of the code
     }
 
