@@ -77,7 +77,7 @@ contract FundMe {
         // 1. how to send eth?
         // require(getConversionRate(msg.value) >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
 
-        require(msg.value.getConversionRate() >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
+        require(getConversionRate(msg.value, priceFeed) >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
         // what is reverting?
         // undo any antion before, and send remaining 
         funders.push(msg.sender);    
