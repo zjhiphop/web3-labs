@@ -41,7 +41,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 
 // custme error to save gas 
-error Fundme__NotOwner();
+error FundMe__NotOwner();
 /**
  * @title A contract for crowd funding
  * @author Jade
@@ -96,10 +96,11 @@ contract FundMe {
         // transfer
         //  send
         // call
-        payable(msg.sender).transfer(address(this).balance);
+        // payable(msg.sender).transfer(address(this).balance);
 
-        bool sendSuccess = payable(msg.sender).send(address(this).balance);
-        require(sendSuccess, "Send failed!");
+        // bool sendSuccess = payable(msg.sender).send(address(this).balance);
+        // require(sendSuccess, "Send failed!");
+
         // call 
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "call failed!");
@@ -108,9 +109,20 @@ contract FundMe {
 
     modifier onlyOwner {
         // require(msg.sender == owner, "Sender is not owner");
-        if(msg.sender != owner) { revert Fundme__NotOwner();}
+        if(msg.sender != owner) { revert FundMe__NotOwner();}
         _; // do the rest of the code
     }
+
+
+    // Functions Order:
+    // constructor
+    // receive
+    // fallback
+    // external
+    // public
+    // internal
+    // private
+    // view / pure
 
     receive() external payable {
         fund();
