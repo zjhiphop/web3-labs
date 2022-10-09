@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import dotenv from "dotenv";
 import "solidity-coverage";
 import "hardhat-deploy";
+import "hardhat-gas-reporter";
 
 dotenv.config();
 const GOERLI_RPC_URL =
@@ -41,11 +42,12 @@ const config = {
         apiKey: etherScanKey
     },
     gasReporter: {
-        enabled: false,
+        enabled: true,
         outputFile: "gas-reporter.txt",
         noColors: true,
         currency: "USD",
-        coinmarketcap: coinmarketcapKey
+        coinmarketcap: coinmarketcapKey,
+        token: "ETH" // use MATIC/ETH blockchain
     },
 
     namedAccounts: {

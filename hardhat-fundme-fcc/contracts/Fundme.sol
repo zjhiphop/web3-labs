@@ -55,18 +55,18 @@ contract FundMe {
     // use Constant and Immutable to gas efficient
     uint256 public constant MINIMAL_USD = 50 * 1e18; // use BlockChain Oracle Network to query the USD value to eth
 
-    address[] public funders;
+    address[] private s_funders; // private variable use less gas cost
 
-    mapping(address => uint256) public addressToAmountFunded;
+    mapping(address => uint256) private s_addressToAmountFunded;
 
     using PriceConverter for uint256;
 
-    address public immutable owner;
-    AggregatorV3Interface public priceFeed;
+    address private immutable i_owner;
+    AggregatorV3Interface private s_priceFeed;
 
     constructor(address priceFeedAddres) {
-        owner = msg.sender;
-        priceFeed = AggregatorV3Interface(priceFeedAddres);
+        i_owner = msg.sender;
+        s_priceFeed = AggregatorV3Interface(priceFeedAddres);
     }
 
     /**
@@ -77,21 +77,22 @@ contract FundMe {
         // 1. how to send eth?
         // require(getConversionRate(msg.value) >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
 
-        require(getConversionRate(msg.value, priceFeed) >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
+        require(getConversionRate(msg.value, s_priceFeed) >= MINIMAL_USD, "Didn't send  enough"); // make sure the amount to sending at least 1 et
         // what is reverting?
         // undo any antion before, and send remaining 
-        funders.push(msg.sender);    
-        addressToAmountFunded[msg.sender] = msg.value;
+        s_funders.push(msg.sender);    
+        s_addressToAmountFunded[msg.sender] = msg.value;
     }
 
 
     function withdraw() public onlyOwner {
-        for(uint256 funderIndex =0 ; funderIndex < funders.length; funderIndex++) {
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
+        // Note: for loop using storage cost a lot of gas
+        for(uint256 funderIndex =0 ; funderIndex < s_funders.length; funderIndex++) {
+            address funder = s_funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
 
-        funders = new address[](0);
+        s_funders = new address[](0);
         // send to eth
         // transfer
         //  send
@@ -106,10 +107,24 @@ contract FundMe {
         require(callSuccess, "call failed!");
 
     }
+    function cheaperWithDraw() public payable onlyOwner {
+        address[] memory funders = s_funders;
+        // Notes: !!!!mappings can't be in memory!!!
+
+        for (uint256 i = 0; i < funders.length; i++) {
+            address funder = funders[i];
+            s_addressToAmountFunded[funder] = 0;
+        }
+
+        s_funders = new address[](0);
+
+        (bool callSuccess, ) = payable(i_owner).call{value: address(this).balance}("");
+        require(callSuccess, "call failed!");
+    }
 
     modifier onlyOwner {
         // require(msg.sender == owner, "Sender is not owner");
-        if(msg.sender != owner) { revert FundMe__NotOwner();}
+        if(msg.sender != i_owner) { revert FundMe__NotOwner();}
         _; // do the rest of the code
     }
 
@@ -161,5 +176,20 @@ contract FundMe {
         return ethAmountInUsd;
     }
 
+    function getOwner() public view returns (address) {
+        return i_owner;
+    }
+
+    function getFunder(uint256 index) public view returns (address) {
+        return s_funders[index];
+    }
+
+    function getAddressToAmountFunded(address funder) public view returns (uint256) {
+        return s_addressToAmountFunded[funder];
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
+    }
 
 }
