@@ -4,10 +4,13 @@ import { abi, contractAddress } from "./constant.js"
 const $connectBtn = document.getElementById('btn-connect')
 const $fundBtn = document.getElementById('btn-fund')
 const $withdrawBtn = document.getElementById('btn-withdraw')
+const $fund = document.getElementById('fund')
 
 // fund
 $fundBtn.onclick = async function fund() {
-    const ethAmount = "2"
+    const ethAmount = $fund.value
+
+    if (!$fund.value) return 
     console.log("Funding: " + ethAmount);
     if (window.ethereum) {
         // provider / connection to block chain

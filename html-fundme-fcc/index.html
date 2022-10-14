@@ -7,10 +7,16 @@
     <title>FundME</title>
 </head>
 <body>
-    <button id="btn-connect" onclick="connect()">Connect to Wallet</button>
-    <button  id="btn-fund">fund</button>
-    <button  id="btn-withdraw">withdraw</button>
+    <label for="fund">ETH Amount</label>
+    <input id="fund" type="number" placeholder="Input eth fund amount as much you want ">
+    <p></p>
+    <div>
 
+        <button id="btn-connect" onclick="connect()">Connect to Wallet</button>
+        <button  id="btn-fund">fund</button>
+        <button  id="btn-withdraw">withdraw</button>
+    
+    </div>
     <script>
         const connect =async () => {
             if(window.ethereum) {
