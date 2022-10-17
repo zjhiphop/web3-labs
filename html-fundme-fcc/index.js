@@ -58,7 +58,25 @@ function listenForTransactionMine(transactionResponse, provider) {
 
 // withdraw
 $withdrawBtn.onclick = async function withdraw() {
+    if (!$fund.value) return
 
+    if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const singer = provider.getSigner()
+        console.log(singer);
+
+        const contract = new ethers.Contract(contractAddress, abi, singer)
+
+        try {
+            const transactionResponse = await contract.withdraw()
+
+            // listen for tx to be mined
+            await listenForTransactionMine(transactionResponse, provider)
+        } catch (e) {
+
+            console.log(err);
+        }
+    }
 }
 
 $balance.onclick = async function getBalance() {
