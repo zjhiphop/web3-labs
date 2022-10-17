@@ -5,6 +5,8 @@ const $connectBtn = document.getElementById('btn-connect')
 const $fundBtn = document.getElementById('btn-fund')
 const $withdrawBtn = document.getElementById('btn-withdraw')
 const $fund = document.getElementById('fund')
+const $balance = document.getElementById('btn-balance')
+const $balanceTxt = document.querySelector('.balance')
 
 // fund
 $fundBtn.onclick = async function fund() {
@@ -57,4 +59,14 @@ function listenForTransactionMine(transactionResponse, provider) {
 // withdraw
 $withdrawBtn.onclick = async function withdraw() {
 
+}
+
+$balance.onclick = async function getBalance() {
+    if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const balance = await provider.getBalance(contractAddress)
+
+        console.log(ethers.utils.formatEther(balance))
+        $balanceTxt.textContent = ethers.utils.formatEther(balance)
+    }
 }
