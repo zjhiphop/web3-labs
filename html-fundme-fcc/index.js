@@ -62,17 +62,21 @@ $withdrawBtn.onclick = async function withdraw() {
 
     if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum)
+        await provider.send('eth_requestAccounts', [])
         const singer = provider.getSigner()
         console.log(singer);
 
         const contract = new ethers.Contract(contractAddress, abi, singer)
 
+        console.log("Owner: ", await contract.getOwner())
+
         try {
+
             const transactionResponse = await contract.withdraw()
 
             // listen for tx to be mined
             await listenForTransactionMine(transactionResponse, provider)
-        } catch (e) {
+        } catch (err) {
 
             console.log(err);
         }
