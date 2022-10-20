@@ -17,6 +17,7 @@
     "solc": "^0.8.17"
   },
   "devDependencies": {
+    "@chainlink/contracts": "^0.5.1",
     "hardhat": "^2.11.2"
   }
 }
