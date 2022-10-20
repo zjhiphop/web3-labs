@@ -16,6 +16,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 // Chanlink Oracle > Rnadomess, Automated Execution (Chanlink keeper)
 
 error Raffle_NotEnoughETHEntered();
+error Raffle_TranferFailed();
 
 contract Raffle is VRFConsumerBaseV2{
     uint256 private immutable i_entranceFee; 
@@ -30,6 +31,10 @@ contract Raffle is VRFConsumerBaseV2{
     // EVENTS
     event RaffleEnter(address);
     event RequestedWaffleWinner(uint256);
+    event WinnerPicked(address);
+
+    // Lottery vars
+    address private s_recentWinner;
 
      
     constructor(
@@ -65,7 +70,19 @@ contract Raffle is VRFConsumerBaseV2{
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override{
+        uint256 indexOfOwner = randomWords[0] % s_players.length;
 
+        address payable rencentWinner = s_players[indexOfOwner];
+
+        s_recentWinner = rencentWinner;
+
+        (bool success, ) = rencentWinner.call{value: address(this).balance}("");
+
+        if(!success) {
+            revert Raffle_TranferFailed();
+        }
+
+        emit WinnerPicked(s_recentWinner);
     }
 
     function requestRandomeNumber( ) external /* external is cheper than internal */ {
@@ -75,5 +92,13 @@ contract Raffle is VRFConsumerBaseV2{
         // Once get it, start to process transactios
 
         emit RequestedWaffleWinner(requestId);
+    }
+
+    function getPlayer(uint256 index) public view returns (address) {
+        return s_players[index]; 
+    }
+
+    function getRecentWinner() public view returns (address) {
+        return s_recentWinner;
     }
 }
