@@ -1,0 +1,1 @@
+Use `pnpm add hardhat-shorthand --global` to  use `hh` instead of `pnpm hardhat`
