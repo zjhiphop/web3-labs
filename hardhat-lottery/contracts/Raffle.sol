@@ -18,8 +18,13 @@ import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 error Raffle_NotEnoughETHEntered();
 error Raffle_NotOpen();
 error Raffle_TranferFailed();
+error Raffle_UpKeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
 
-contract Raffle is VRFConsumerBaseV2 {
+/**
+ * @title A same raffle app
+ * @author Jade 
+ */
+contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     /** Type description  */ 
     enum RaffleState {
         Open, Close
@@ -97,6 +102,7 @@ contract Raffle is VRFConsumerBaseV2 {
         s_recentWinner = rencentWinner;
         s_state = RaffleState.Open;
         s_players = new address payable[](0);
+        s_timeStamp = block.timestamp;
 
         (bool success, ) = rencentWinner.call{value: address(this).balance}("");
 
@@ -142,10 +148,10 @@ contract Raffle is VRFConsumerBaseV2 {
      * 4. The lottery should be open state
      */
     function checkUpkeep(
-        bytes calldata /* checkData */
+        bytes memory/* calldata  checkData */
     )
-        external
-        view
+        public
+        override
         returns (
             bool upkeepNeeded,
             bytes memory /* performData */
@@ -155,6 +161,43 @@ contract Raffle is VRFConsumerBaseV2 {
         bool timePassed = ((block.timestamp - s_timeStamp) > i_interval );
         bool hasPlayers = s_players.length > 0;
         bool hasBalance = address(this).balance > 0;
-        upkeepNeeded = (isOpen && hasPlayers && hasBalance);
+        upkeepNeeded = (isOpen && hasPlayers && hasBalance && timePassed);
     }
+
+    function performUpkeep(bytes calldata /* performData */) external override {
+        (bool upkeepNeeded, ) = checkUpkeep("");
+        
+        if(!upkeepNeeded) {
+            revert Raffle_UpKeepNotNeeded(address(this).balance, s_players.length, uint256(s_state));
+        }
+
+           // request random number
+        uint256 requestId = i_vrfCoordinator.requestRandomWords(
+            i_gasLane,
+            i_subscriptionId,
+            REQUEST_CONFIRMATION,
+            i_callbackGasLimit,
+            NUM_WORDS
+        );
+        // Once get it, start to process transactios
+
+        emit RequestedWaffleWinner(requestId);
+    }
+
+    function getRaffleState() public view returns (RaffleState){
+        return s_state;
+    }
+
+    function getNumWords() public pure  returns (uint32) {
+        return NUM_WORDS;
+    }
+
+     function getNumOfPlayers() public view  returns (uint256) {
+        return s_players.length;
+    }
+
+    function getLastTimeStamp() public view returns (uint256) {
+        return s_timeStamp;
+    }
+
 }
