@@ -28,7 +28,7 @@ module.exports = {
       chainId: 5,
       blockConfirmations: 6
     },
-  }
+  },
   namedAccounts: {
     deployer: {
       default: 0
