@@ -29,6 +29,14 @@ module.exports = {
       blockConfirmations: 6
     },
   },
+  gasReporter: {
+    enabled: false,
+    outputFile: "gas-reporter.txt",
+    noColors: true,
+    currency: "USD",
+    coinmarketcap: coinmarketcapKey,
+    token: "ETH" // use MATIC/ETH blockchain
+  },
   namedAccounts: {
     deployer: {
       default: 0

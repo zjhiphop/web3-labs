@@ -200,4 +200,8 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_timeStamp;
     }
 
+    function getInterval() public view returns (uint256) {
+        return i_interval;
+    }
+
 }
