@@ -4,6 +4,7 @@ require("hardhat-deploy");
 require("solidity-coverage");
 require("hardhat-gas-reporter");
 require("hardhat-contract-sizer");
+require("@nomicfoundation/hardhat-chai-matchers");
 
 require('dotenv').config()
 
