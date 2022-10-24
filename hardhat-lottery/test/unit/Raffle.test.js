@@ -5,7 +5,7 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
 !devChains.includes(network.name)
     ? describe.skip
     : describe("Raffle Unit test", async function () {
-        let raffle, vrfCoordinatorV2Mock, entranceFee, deployer;
+        let raffle, vrfCoordinatorV2Mock, entranceFee, deployer, inverval;
         const chainId = network.config.chainId
 
         beforeEach(async function () {
@@ -14,6 +14,7 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
             raffle = await ethers.getContract("Raffle", deployer)
             vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock", deployer)
             entranceFee = await raffle.getEntranceFee()
+            interval = await raffle.getInterval()
         })
 
         describe("Constructor", async function () {
@@ -48,6 +49,20 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
             it("Emits event on enter", async function () {
                 await expect(raffle.enterRaffle({ value: entranceFee }))
                     .to.emit(raffle, 'RaffleEnter')
+            })
+
+            it("Doesn't allow entrance when raffle is calculating", async function () {
+                await raffle.enterRaffle({ value: entranceFee })
+                // time machine to simulate time shift
+                await network.provider.send('evm_increaseTime', [interval.toNumber() + 1])
+                await network.provider.send('evm_mine', [])
+
+                // pretend to be a chain keeper
+                await raffle.performUpkeep([])
+                await expect(raffle.enterRaffle({ value: entranceFee })).to.be.revertedWithCustomError(
+                    raffle,
+                    "Raffle_NotOpen"
+                )
             })
         })
     })

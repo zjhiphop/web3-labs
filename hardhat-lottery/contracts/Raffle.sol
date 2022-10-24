@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
+import "hardhat/console.sol";
 
 // Raffle
 
@@ -27,7 +28,7 @@ error Raffle_UpKeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256
 contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     /** Type description  */ 
     enum RaffleState {
-        Open, Close
+        Open, Close, CALCULATING
     }
 
     /** State variables */
@@ -162,6 +163,8 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         bool hasPlayers = s_players.length > 0;
         bool hasBalance = address(this).balance > 0;
         upkeepNeeded = (isOpen && hasPlayers && hasBalance && timePassed);
+
+        return (upkeepNeeded, "0x00");
     }
 
     function performUpkeep(bytes calldata /* performData */) external override {
@@ -170,6 +173,8 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         if(!upkeepNeeded) {
             revert Raffle_UpKeepNotNeeded(address(this).balance, s_players.length, uint256(s_state));
         }
+
+        s_state = RaffleState.CALCULATING;
 
            // request random number
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
