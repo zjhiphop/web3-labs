@@ -44,5 +44,10 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
 
                 assert.equal(playerFromContract, deployer)
             })
+
+            it("Emits event on enter", async function () {
+                await expect(raffle.enterRaffle({ value: entranceFee }))
+                    .to.emit(raffle, 'RaffleEnter')
+            })
         })
     })
