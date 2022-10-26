@@ -46,5 +46,10 @@ module.exports = {
       default: 1
     }
 
+  },
+
+  // test config
+  mocha: {
+    timeout: 20000
   }
 };

@@ -5,10 +5,11 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
 !devChains.includes(network.name)
     ? describe.skip
     : describe("Raffle Unit test", async function () {
-        let raffle, vrfCoordinatorV2Mock, entranceFee, deployer, inverval;
+        let raffle, vrfCoordinatorV2Mock, entranceFee, deployer, inverval, player, accounts;
         const chainId = network.config.chainId
 
         beforeEach(async function () {
+            accounts = await ethers.getSigners()
             deployer = (await getNamedAccounts()).deployer
             await deployments.fixture(["all"])
             raffle = await ethers.getContract("Raffle", deployer)
@@ -125,6 +126,69 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
 
                 await expect(vrfCoordinatorV2Mock.fulfillRandomWords(1, raffle.address))
                     .to.be.revertedWith("nonexistent request")
+
+            })
+
+            it("Pick a winner, resets the lottery and sends money", async () => {
+                const additionalEntrants = 3
+                const startingAccountIndex = 1 // deployer = 0
+                for (let i = startingAccountIndex; i < startingAccountIndex + additionalEntrants; i++) {
+                    const accountConnectedRaffle = raffle.connect(accounts[i])
+                    await accountConnectedRaffle.enterRaffle({ value: entranceFee })
+                }
+
+                const startingTimestamp = await raffle.getLastTimeStamp()
+
+                // performUpkeep (mock being Chainlink keeper)
+                // fulfillRandomWords (mock being the Chainlink vrf)
+                // wait for fulfillRandomWords called
+
+                await new Promise(async (resolve, reject) => {
+                    raffle.once("WinnerPicked", async () => {
+                        try {
+                            const recentWinner = await raffle.getRecentWinner()
+                            const raffleState = await raffle.getRaffleState()
+
+                            const winnerBalance = await accounts[2].getBalance()
+                            const endingTimeStamp = await raffle.getLastTimeStamp()
+                            const numPlayers = await raffle.getNumOfPlayers()
+
+                            console.log(recentWinner, accounts)
+
+                            assert.equal(numPlayers, 0)
+                            assert.equal(raffleState, 0)
+                            assert.equal(
+                                winnerBalance.toString(),
+                                startingBalance // startingBalance + ( (raffleEntranceFee * additionalEntrances) + raffleEntranceFee )
+                                    .add(
+                                        raffleEntranceFee
+                                            .mul(additionalEntrances)
+                                            .add(raffleEntranceFee)
+                                    )
+                                    .toString()
+                            )
+                            assert(endingTimeStamp > startingTimestamp)
+
+                            resolve()
+                        } catch (e) {
+                            reject(e)
+                        }
+
+                    })
+
+                    // set up the listener
+                    const tx = await raffle.performUpkeep([])
+                    const txReceipt = await tx.wait(1)
+                    const startingBalance = await accounts[2].getBalance()
+
+                    console.log(txReceipt.events[1])
+
+                    await expect(vrfCoordinatorV2Mock.fulfillRandomWords(
+                        txReceipt.events[1].args,
+                        raffle.address
+                    )).to.be.revertedWithCustomError(raffle, "Raffle_TranferFailed")
+                    // fire the event and listener will pick it up and resolve
+                })
 
             })
         })
