@@ -65,4 +65,67 @@ const { devChains, networkConfig } = require("../../helper-hardhat-conf");
                 )
             })
         })
+
+        describe("Check Up Keepers", function () {
+            it("returns false if user haven't sent any ETH", async function () {
+                await network.provider.send('evm_increaseTime', [interval.toNumber() + 1])
+                await network.provider.send('evm_mine', [])
+
+                const { upKeepNeeded } = await raffle.callStatic.checkUpkeep([])
+
+                assert(!upKeepNeeded)
+            })
+
+            it("Returns false if raffle is not open", async function () {
+                await raffle.enterRaffle({ value: entranceFee })
+
+                await network.provider.send('evm_increaseTime', [interval.toNumber() + 1])
+                await network.provider.send('evm_mine', [])
+
+                await raffle.performUpkeep([]) // 0x is transform to empty bytes automated
+                const raffleState = await raffle.getRaffleState()
+                const { upKeepNeeded } = await raffle.checkUpkeep([])
+
+                assert.equal(raffleState.toString(), "2")
+                assert(!upKeepNeeded)
+            })
+
+            it("Reverts when check up keep is false", async function () {
+                await expect(raffle.performUpkeep([])).to.be.revertedWithCustomError(raffle, "Raffle_UpKeepNotNeeded")
+            })
+
+            it("Updates the raffle state, emits and event and calls the vrf coordinator", async () => {
+                await raffle.enterRaffle({ value: entranceFee })
+
+                await network.provider.send('evm_increaseTime', [interval.toNumber() + 1])
+                await network.provider.send('evm_mine', [])
+
+                const txResponse = await raffle.performUpkeep([])
+                const txReceipt = await txResponse.wait(1)
+                const requestId = txReceipt.events[1].args
+                const raffleState = await raffle.getRaffleState()
+
+                assert(requestId > 0)
+                assert(raffleState == 2)
+            })
+
+        })
+        // https://vscode.dev/github/zjhiphop/web3-labs/blob/408309fba78c509a1f9629e68bddd2f7eee4254c/hardhat-lottery/node_modules/.pnpm/@chainlink+contracts@0.5.1_ethers@5.7.2/node_modules/@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol#L88
+        describe("fullfill random words", async () => {
+            beforeEach(async () => {
+                await raffle.enterRaffle({ value: entranceFee })
+
+                await network.provider.send('evm_increaseTime', [interval.toNumber() + 1])
+                await network.provider.send('evm_mine', [])
+            })
+
+            it("Can only be called after perfrom upkeep", async () => {
+                await expect(vrfCoordinatorV2Mock.fulfillRandomWords(0, raffle.address))
+                    .to.be.revertedWith("nonexistent request")
+
+                await expect(vrfCoordinatorV2Mock.fulfillRandomWords(1, raffle.address))
+                    .to.be.revertedWith("nonexistent request")
+
+            })
+        })
     })

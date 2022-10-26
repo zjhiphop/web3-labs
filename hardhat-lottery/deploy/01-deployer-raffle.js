@@ -23,9 +23,9 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     // uint64 subscriptionId,
     // uint32 callbackGasLimit,
     // uint256 interval
-
+    let vrfCoordinatorV2Mock
     if (devChains.includes(network.name)) {
-        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
+        vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
 
         //create subscription 
@@ -62,7 +62,11 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     // verify after deployed
     if (!devChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
+
         verifyContract(raffle.address, args)
+    } else {
+        // https://github.com/PatrickAlphaC/hardhat-smartcontract-lottery-fcc/issues/46
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
     }
 
     log("Raffle Deployed successfully")
