@@ -42,9 +42,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint32 private constant NUM_WORDS = 2;
 
     // EVENTS
-    event RaffleEnter(address);
-    event RequestedWaffleWinner(uint256);
-    event WinnerPicked(address);
+    event RequestedRaffleWinner(uint256 indexed requestId);
+    event RaffleEnter(address indexed player);
+    event WinnerPicked(address indexed player);
 
     // Lottery vars
     address private s_recentWinner;
@@ -128,7 +128,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         );
         // Once get it, start to process transactios
 
-        emit RequestedWaffleWinner(requestId);
+        emit RequestedRaffleWinner(requestId);
     }
 
     function getPlayer(uint256 index) public view returns (address) {
@@ -186,7 +186,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         );
         // Once get it, start to process transactios
 
-        emit RequestedWaffleWinner(requestId);
+        emit RequestedRaffleWinner(requestId);
     }
 
     function getRaffleState() public view returns (RaffleState){

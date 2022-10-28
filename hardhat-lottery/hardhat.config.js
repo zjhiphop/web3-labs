@@ -50,6 +50,6 @@ module.exports = {
 
   // test config
   mocha: {
-    timeout: 20000
+    timeout: 2000000
   }
 };
