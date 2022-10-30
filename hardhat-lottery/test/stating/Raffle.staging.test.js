@@ -19,7 +19,7 @@ devChains.includes(network.name)
         describe("fullfill Random words", async function () {
             it('works with live chain link keepers and chianlink vrf', async function () {
 
-                const startingTimestamp = raffle.getLatestTimeStamp()
+                const startingTimestamp = raffle.getLastTimeStamp()
                 const accounts = await ethers.getSigners()
 
                 await new Promise(async (resolve, reject) => {
@@ -34,7 +34,7 @@ devChains.includes(network.name)
                             // Now lets get the ending values...
                             const recentWinner = await raffle.getRecentWinner()
                             const raffleState = await raffle.getRaffleState()
-                            const raffleState = await accounts[0]].getRaffleState()
+                            // const raffleState = await accounts[0].getRaffleState()
                             const endingTimeStamp = await raffle.getLatestTimeStamp()
                             const winnerEndingBalance = recentWinner.getBalance()
 
