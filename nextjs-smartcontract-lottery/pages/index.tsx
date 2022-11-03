@@ -3,6 +3,8 @@ import Image from "next/image"
 import styles from "../styles/Home.module.css"
 import { useMoralis } from "react-moralis"
 import Header from "../components/Header"
+import ManualHeader from "../components/ManualHeader"
+import LotteryEntrance from "../components/LotteryEntrance"
 
 const supportedChains = [31337, 5]
 
@@ -17,6 +19,7 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Header></Header>
+            <ManualHeader></ManualHeader>
             {isWeb3Enabled ? (
                 <div>
                     {supportedChains.includes(chainId).toString() ? (
@@ -28,6 +31,8 @@ export default function Home() {
             ) : (
                 <div>Please connect to a wallet</div>
             )}
+
+            <LotteryEntrance></LotteryEntrance>
         </div>
     )
 }
