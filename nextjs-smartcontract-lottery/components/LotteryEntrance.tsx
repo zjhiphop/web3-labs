@@ -6,12 +6,12 @@ import { abi, contractAddresses } from "../constant/"
 
 export default function LotteryEntrance() {
     const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
-    const chainId: string = chainIdHex ? parseInt(chainIdHex).toString() : "5"
+    const chainId: string = chainIdHex ? parseInt(chainIdHex).toString() : "31337"
 
     const raffleAddress = chainId in contractAddresses ? contractAddresses[chainId][0] : null
 
     // Hooks
-    const [entranceFee, setEntranceFee] = useState("0")
+    const [entranceFee, setEntranceFee] = useState(ethers.utils.parseEther("0.01"))
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
     const [recentWinner, setRecentWinner] = useState("0")
 
@@ -39,7 +39,7 @@ export default function LotteryEntrance() {
         params: {},
     })
 
-    const { runContractFunction: getPlayersNumber } = useWeb3Contract({
+    const { runContractFunction: getNumOfPlayers } = useWeb3Contract({
         abi: abi,
         contractAddress: raffleAddress,
         functionName: "getNumOfPlayers",
@@ -56,12 +56,12 @@ export default function LotteryEntrance() {
     async function updateUIValues() {
         if (!raffleAddress) return
         try {
-            const numPlayersFromCall = (await getPlayersNumber()).toString()
+            const numPlayersFromCall = await getNumOfPlayers()
             const recentWinnerFromCall = await getRecentWinner()
-            const entranceFeeFromCall = (await getEntranceFee()).toString()
-            setEntranceFee(entranceFeeFromCall)
-            setNumberOfPlayers(numPlayersFromCall)
-            setRecentWinner(recentWinnerFromCall)
+            const entranceFeeFromCall = await getEntranceFee()
+            entranceFeeFromCall && setEntranceFee(entranceFeeFromCall)
+            entranceFeeFromCall && setNumberOfPlayers(numPlayersFromCall)
+            recentWinnerFromCall && setRecentWinner(recentWinnerFromCall)
         } catch (e) {
             console.log("updateUIValues exception:", e, raffleAddress)
         }

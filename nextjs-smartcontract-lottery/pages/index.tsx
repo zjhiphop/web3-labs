@@ -23,7 +23,9 @@ export default function Home() {
             {isWeb3Enabled ? (
                 <div>
                     {supportedChains.includes(chainId).toString() ? (
-                        <div class="flex flex-row"></div>
+                        <div class="flex flex-row">
+                            <LotteryEntrance></LotteryEntrance>
+                        </div>
                     ) : (
                         <div>{`Please switch to a supported chainId. The supported Chain Ids are: ${supportedChains}`}</div>
                     )}
@@ -31,8 +33,6 @@ export default function Home() {
             ) : (
                 <div>Please connect to a wallet</div>
             )}
-
-            <LotteryEntrance></LotteryEntrance>
         </div>
     )
 }
