@@ -39,7 +39,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint64 private immutable i_subscriptionId;
     uint32 private immutable i_callbackGasLimit;
     uint16 private constant REQUEST_CONFIRMATION = 2;
-    uint32 private constant NUM_WORDS = 2;
+    uint32 private constant NUM_WORDS = 1;
 
     // EVENTS
     event RequestedRaffleWinner(uint256 indexed requestId);
@@ -67,6 +67,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
         s_state = RaffleState.Open;
+        s_timeStamp = block.timestamp;
         i_interval = interval;
     }
 
@@ -92,7 +93,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return i_entranceFee;
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
+    function fulfillRandomWords(uint256, uint256[] memory randomWords)
         internal
         override
     {
@@ -152,6 +153,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         bytes memory/* calldata  checkData */
     )
         public
+        view
         override
         returns (
             bool upkeepNeeded,
