@@ -6,7 +6,7 @@ import { abi, contractAddresses } from "../constant/"
 
 export default function LotteryEntrance() {
     const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
-    const chainId = parseInt(chainIdHex)
+    const chainId: string = chainIdHex ? parseInt(chainIdHex).toString() : "5"
 
     const raffleAddress = chainId in contractAddresses ? contractAddresses[chainId][0] : null
 
