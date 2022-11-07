@@ -11,7 +11,7 @@ export default function LotteryEntrance() {
     const raffleAddress = chainId in contractAddresses ? contractAddresses[chainId][0] : null
 
     // Hooks
-    const [entranceFee, setEntranceFee] = useState(ethers.utils.parseEther("0.01"))
+    const [entranceFee, setEntranceFee] = useState(ethers.utils.parseEther("0"))
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
     const [recentWinner, setRecentWinner] = useState("0")
 
