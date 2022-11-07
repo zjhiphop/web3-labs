@@ -56,8 +56,8 @@ export default function LotteryEntrance() {
     async function updateUIValues() {
         if (!raffleAddress) return
         try {
-            const numPlayersFromCall = await getNumOfPlayers()
-            const recentWinnerFromCall = await getRecentWinner()
+            const numPlayersFromCall = (await getNumOfPlayers()).toString()
+            const recentWinnerFromCall = (await getRecentWinner()).toString()
             const entranceFeeFromCall = await getEntranceFee()
             entranceFeeFromCall && setEntranceFee(entranceFeeFromCall)
             entranceFeeFromCall && setNumberOfPlayers(numPlayersFromCall)
